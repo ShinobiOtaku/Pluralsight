@@ -1,0 +1,57 @@
+# Compiled source #
+###################
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# OS generated files #
+######################
+.DS_Store?
+ehthumbs.db
+[Ii]con?
+[Tt]humbs.db
+
+# .NET Specific Folders #
+#########################
+[Oo]bj
+[Oo]bj/*
+[Bb]in
+[Bb]in/*
+deploy
+deploy/*
+_ReSharper.*
+*.csproj.user
+*.Resharper.user
+*.resharper
+*.suo
+*.cache
+~$*
+*.licx
+*/obj
+
+# VS Source Control information #
+#################################
+*.vspscc
+*.vssscc
+
+# Ignore NuGet Packages
+*.nupkg
+# Ignore the packages folder
+**/packages/*
+# except build/, which is used as an MSBuild target.
+!**/packages/build/
