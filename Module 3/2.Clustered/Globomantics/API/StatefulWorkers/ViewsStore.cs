@@ -43,18 +43,13 @@ namespace API.StatefulWorkers
    /// </summary>
    internal class ViewsStore : PersistentActor//Part of Akka.Persistence
    {
-      private class Save { }
-
       private List<VideoView> _store = new List<VideoView>();
 
-      private readonly TimeSpan _snapshotInterval = TimeSpan.FromSeconds(10);
-
-      public override string PersistenceId { get; } = Context.Self.Path.ToString();
+      public override string PersistenceId { get; } = "ViewsStore";
 
       public ViewsStore()
       {
-         Context.System.Scheduler.ScheduleTellRepeatedly(
-            _snapshotInterval, _snapshotInterval, Self, new Save(), ActorRefs.NoSender);
+         Console.WriteLine(nameof(ViewsStore) + " started");
       }
 
       protected override bool ReceiveRecover(object message)
@@ -72,10 +67,13 @@ namespace API.StatefulWorkers
       protected override bool ReceiveCommand(object message)
       {
          return message.Match()
-            .With<Save>(_ => SaveSnapshot(_store))
             .With<VideoView>(view =>
             {
-               Persist(view, _store.Add);
+               Persist(view, v =>
+               {
+                  _store.Add(v);
+                  SaveSnapshot(_store);
+               });
                Console.WriteLine($"Persisting view. video: {view.VideoId} user: {view.UserId}");
             })
             .With<PreviouslyViewedVideosRequest>(req =>
