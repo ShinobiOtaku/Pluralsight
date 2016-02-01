@@ -13,21 +13,21 @@ namespace Client
          var system = ActorSystem.Create("globomantics");
 
          var api = system.ActorOf(Props.Empty.WithRouter(FromConfig.Instance), "api");
-         var printer = system.ActorOf<PrinterActor>();
+         var printer = system.ActorOf<Printer>();
 
          var rand = new Random();
 
-         //system.Scheduler.Advanced.ScheduleRepeatedly(TimeSpan.FromMilliseconds(3), TimeSpan.FromSeconds(1), () =>
-         //   {
-         //      if(api.Ask<Routees>(new GetRoutees()).Result.Members.Any())
-         //         api.Tell(new VideoView(rand.Next(16), rand.Next(11)));
-         //   });
-         //
-         //system.Scheduler.Advanced.ScheduleRepeatedly(TimeSpan.FromMilliseconds(5), TimeSpan.FromSeconds(5), () =>
-         //   {
-         //      if (api.Ask<Routees>(new GetRoutees()).Result.Members.Any())
-         //         api.Tell(new Login(rand.Next(11)), printer);
-         //   });
+         system.Scheduler.Advanced.ScheduleRepeatedly(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(1), () =>
+            {
+               if(api.Ask<Routees>(new GetRoutees()).Result.Members.Any())
+                  api.Tell(new VideoWatchedEvent(rand.Next(16), rand.Next(11)));
+            });
+         
+         system.Scheduler.Advanced.ScheduleRepeatedly(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5), () =>
+            {
+               if (api.Ask<Routees>(new GetRoutees()).Result.Members.Any())
+                  api.Tell(new LoginEvent(rand.Next(11)), printer);
+            });
 
 
          system.WhenTerminated.Wait();
@@ -37,9 +37,9 @@ namespace Client
    /// <summary>
    /// Prints recommendations out to the console
    /// </summary>
-   public class PrinterActor : ReceiveActor
+   public class Printer : ReceiveActor
    {
-      public PrinterActor()
+      public Printer()
       {
          Receive<Recommendation>(res =>
          {

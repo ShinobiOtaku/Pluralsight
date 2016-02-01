@@ -21,14 +21,14 @@ namespace API
 
       private void Start()
       {
-         Receive<Login>(login =>
+         Receive<LoginEvent>(login =>
          {
             var master = Context.ActorOf(Props.Create(() => new RecommendationWorkflow(_viewsRepo, _videoDetails)));
             master.Tell(new RecommendationJob(login.UserId, Sender));
          });
 
          //Best effort
-         Receive<VideoView>(view => _viewsRepo.Tell(new Broadcast(view)));
+         Receive<VideoWatchedEvent>(view => _viewsRepo.Tell(new Broadcast(view)));
       }
    }
 }

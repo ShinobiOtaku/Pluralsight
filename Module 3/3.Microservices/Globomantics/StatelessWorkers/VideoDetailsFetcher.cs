@@ -8,13 +8,13 @@ namespace StatelessWorkers
    /// <summary>
    /// Request to see which videos have not been viewed by a user
    /// </summary>
-   public class UnviewedVideosRequest
+   public class UnseenVideosRequest
    {
       public RecommendationJob Job { get; }
 
       public int[] PreviouslySeenVideoIds { get; }
 
-      public UnviewedVideosRequest(RecommendationJob job, int[] previouslySeenVideoIds)
+      public UnseenVideosRequest(RecommendationJob job, int[] previouslySeenVideoIds)
       {
          Job = job;
          PreviouslySeenVideoIds = previouslySeenVideoIds;
@@ -24,13 +24,13 @@ namespace StatelessWorkers
    /// <summary>
    /// Response containing which videos have not been viewed by a user
    /// </summary>
-   public class UnviewedVideosResponse
+   public class UnseenVideosResponse
    {
       public RecommendationJob Job { get; }
 
       public Video[] UnseenVideos { get; }
 
-      public UnviewedVideosResponse(RecommendationJob job, Video[] unseenVideos)
+      public UnseenVideosResponse(RecommendationJob job, Video[] unseenVideos)
       {
          Job = job;
          UnseenVideos = unseenVideos;
@@ -55,13 +55,13 @@ namespace StatelessWorkers
 
       private void Ready()
       {
-         Receive<UnviewedVideosRequest>(req =>
+         Receive<UnseenVideosRequest>(req =>
          {
-            Console.WriteLine(nameof(UnviewedVideosRequest) + $" for user {req.Job.UserId}");
+            Console.WriteLine(nameof(UnseenVideosRequest) + $" for user {req.Job.UserId}");
 
             _remoteAPI
                .GetUnseenVideosAsync(req.PreviouslySeenVideoIds)
-               .PipeTo(Self, Sender, result => new UnviewedVideosResponse(req.Job, result));
+               .PipeTo(Self, Sender, result => new UnseenVideosResponse(req.Job, result));
 
             Become(Busy);
          });
@@ -70,7 +70,7 @@ namespace StatelessWorkers
       //Limit in-flight requests
       private void Busy()
       {
-         Receive<UnviewedVideosResponse>(resp =>
+         Receive<UnseenVideosResponse>(resp =>
          {
             Sender.Tell(resp);
             GetReady();

@@ -13,7 +13,7 @@ namespace API
       {
          var system = ActorSystem.Create("globomantics");
 
-         var viewsPool = system.ActorOf(Props.Create<ViewsStore>().WithRouter(FromConfig.Instance), "views");
+         var viewsPool = system.ActorOf(Props.Create<VideosWatchedStore>().WithRouter(FromConfig.Instance), "views");
 
          var videoDetailsPool = system.ActorOf(Props.Create<VideoDetailsFetcher>().WithRouter(FromConfig.Instance), "videoDetails");
 

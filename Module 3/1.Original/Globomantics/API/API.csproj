@@ -87,7 +87,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PublicMessages.cs" />
     <Compile Include="RecommendationWorkflow.cs" />
-    <Compile Include="StatefulWorkers\ViewsStore.cs" />
+    <Compile Include="StatefulWorkers\VideosWatchedStore.cs" />
     <Compile Include="StatelessWorkers\VideoDetailsFetcher.cs" />
     <Compile Include="StatelessWorkers\RemoteAPI.cs" />
     <Compile Include="Domain\Video.cs" />

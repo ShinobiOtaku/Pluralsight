@@ -26,7 +26,7 @@ namespace API
    }
 
    /// <summary>
-   /// Performs all the colaboration required to create a recommendation.
+   /// Performs all the collaboration required to create a recommendation.
    /// One recommendation per actor, lives for the lifetime of the lifecycle
    /// 
    /// 1. Wait until all required actors are up
@@ -104,21 +104,25 @@ namespace API
             _startAttempts.Cancel();
 
             _viewsRepo
-               .Ask<PreviouslyViewedVideosResponse>(new PreviouslyViewedVideosRequest(attempt.Job), TimeSpan.FromSeconds(20))
+               .Ask<PreviouslyWatchedVideosResponse>(new PreviouslyWatchedVideosRequest(attempt.Job), TimeSpan.FromSeconds(20))
                .PipeTo(Self);
          });
 
-         Receive<PreviouslyViewedVideosResponse>(resp =>
+         Receive<PreviouslyWatchedVideosResponse>(resp =>
          {
             _videoDetails
-               .Ask<UnviewedVideosResponse>(new UnviewedVideosRequest(resp.Job, resp.PreviouslySeenVideoIds), TimeSpan.FromSeconds(20))
+               .Ask<UnwatchedVideosResponse>(new UnwatchedVideosRequest(resp.Job, resp.PreviouslySeenVideoIds), TimeSpan.FromSeconds(20))
                .PipeTo(Self);
          });
 
-         Receive<UnviewedVideosResponse>(unseen =>
+         Receive<UnwatchedVideosResponse>(unseen =>
          {
-            var videos = unseen.UnseenVideos.Take(GlobomanticsConfiguration.NumberOfRecommendations).ToArray();
-            unseen.Job.Client.Tell(new Recommendation(videos));
+            var recommendedVideos = unseen.UnseenVideos
+                  .OrderByDescending(v => v.Rating)
+                  .Take(GlobomanticsConfiguration.NumberOfRecommendations)
+                  .ToArray();
+
+            unseen.Job.Client.Tell(new Recommendation(recommendedVideos));
 
             //My work here is done
             Self.Tell(PoisonPill.Instance);

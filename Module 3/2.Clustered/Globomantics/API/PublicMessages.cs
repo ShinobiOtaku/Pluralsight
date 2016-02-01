@@ -1,5 +1,4 @@
-﻿using Akka.Routing;
-using API.Domain;
+﻿using API.Domain;
 
 namespace API
 {
@@ -17,23 +16,23 @@ namespace API
       }
    }
 
-   public class Login
+   public class LoginEvent
    {
       public int UserId { get; }
 
-      public Login(int userId)
+      public LoginEvent(int userId)
       {
          UserId = userId;
       }
    }
 
-   public class VideoView
+   public class VideoWatchedEvent
    {
       public int VideoId { get; }
 
       public int UserId { get; }
 
-      public VideoView(int videoId, int userId)
+      public VideoWatchedEvent(int videoId, int userId)
       {
          VideoId = videoId;
          UserId = userId;

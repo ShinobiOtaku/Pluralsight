@@ -7,13 +7,13 @@ namespace API.StatelessWorkers
    /// <summary>
    /// Request to see which videos have not been viewed by a user
    /// </summary>
-   internal class UnviewedVideosRequest
+   internal class UnwatchedVideosRequest
    {
       public RecommendationJob Job { get; }
 
       public int[] PreviouslySeenVideoIds { get; }
 
-      public UnviewedVideosRequest(RecommendationJob job, int[] previouslySeenVideoIds)
+      public UnwatchedVideosRequest(RecommendationJob job, int[] previouslySeenVideoIds)
       {
          Job = job;
          PreviouslySeenVideoIds = previouslySeenVideoIds;
@@ -23,13 +23,13 @@ namespace API.StatelessWorkers
    /// <summary>
    /// Response containing which videos have not been viewed by a user
    /// </summary>
-   internal class UnviewedVideosResponse
+   internal class UnwatchedVideosResponse
    {
       public RecommendationJob Job { get; }
 
       public Video[] UnseenVideos { get; }
 
-      public UnviewedVideosResponse(RecommendationJob job, Video[] unseenVideos)
+      public UnwatchedVideosResponse(RecommendationJob job, Video[] unseenVideos)
       {
          Job = job;
          UnseenVideos = unseenVideos;
@@ -54,13 +54,13 @@ namespace API.StatelessWorkers
 
       private void Ready()
       {
-         Receive<UnviewedVideosRequest>(req =>
+         Receive<UnwatchedVideosRequest>(req =>
          {
-            Console.WriteLine(nameof(UnviewedVideosRequest) + $" for user {req.Job.UserId}");
+            Console.WriteLine(nameof(UnwatchedVideosRequest) + $" for user {req.Job.UserId}");
 
             _remoteAPI
                .GetUnseenVideosAsync(req.PreviouslySeenVideoIds)
-               .PipeTo(Self, Sender, result => new UnviewedVideosResponse(req.Job, result));
+               .PipeTo(Self, Sender, result => new UnwatchedVideosResponse(req.Job, result));
 
             Become(Busy);
          });
@@ -69,7 +69,7 @@ namespace API.StatelessWorkers
       //Limit in-flight requests
       private void Busy()
       {
-         Receive<UnviewedVideosResponse>(resp =>
+         Receive<UnwatchedVideosResponse>(resp =>
          {
             Sender.Tell(resp);
             GetReady();

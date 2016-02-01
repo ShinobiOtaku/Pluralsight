@@ -11,11 +11,11 @@ namespace StatefulWorkers
    /// <summary>
    /// Request for all the videos a user has viewed
    /// </summary>
-   public class PreviouslyViewedVideosRequest
+   public class PreviouslyWatchedVideosRequest
    {
       public RecommendationJob Job { get; }
 
-      public PreviouslyViewedVideosRequest(RecommendationJob job)
+      public PreviouslyWatchedVideosRequest(RecommendationJob job)
       {
          Job = job;
       }
@@ -24,16 +24,16 @@ namespace StatefulWorkers
    /// <summary>
    /// Response containing all videos a user has viewed
    /// </summary>
-   public class PreviouslyViewedVideosResponse
+   public class PreviouslyWatchedVideosResponse
    {
       public RecommendationJob Job { get; }
 
-      public int[] PreviouslySeenVideoIds { get; }
+      public int[] PreviouslyWatchedVideoIds { get; }
 
-      public PreviouslyViewedVideosResponse(RecommendationJob job, int[] previouslySeenVideoIds)
+      public PreviouslyWatchedVideosResponse(RecommendationJob job, int[] previouslyWatchedVideoIds)
       {
          Job = job;
-         PreviouslySeenVideoIds = previouslySeenVideoIds;
+         PreviouslyWatchedVideoIds = previouslyWatchedVideoIds;
       }
    }
 
@@ -42,24 +42,24 @@ namespace StatefulWorkers
    /// Durable store of which users have viewed which videos
    /// Can be queried for which videos a user has viewed
    /// </summary>
-   public class ViewsStore : PersistentActor//Part of Akka.Persistence
+   public class VideosWatchedStore : PersistentActor//Part of Akka.Persistence
    {
-      private List<VideoView> _store = new List<VideoView>();
+      private List<VideoWatchedEvent> _store = new List<VideoWatchedEvent>();
 
       public override string PersistenceId { get; } = "ViewsStore";
 
-      public ViewsStore()
+      public VideosWatchedStore()
       {
-         Console.WriteLine(nameof(ViewsStore) + " started");
+         Console.WriteLine(nameof(VideosWatchedStore) + " started");
       }
 
       protected override bool ReceiveRecover(object message)
       {
          return message.Match()
-            .With<VideoView>(view => _store.Add(view))
+            .With<VideoWatchedEvent>(view => _store.Add(view))
             .With<SnapshotOffer>(offer =>
             {
-               _store = (List<VideoView>) offer.Snapshot;
+               _store = (List<VideoWatchedEvent>) offer.Snapshot;
                Console.WriteLine($"Recovered state with {_store.Count} views");
             })
             .WasHandled;
@@ -68,18 +68,18 @@ namespace StatefulWorkers
       protected override bool ReceiveCommand(object message)
       {
          return message.Match()
-            .With<VideoView>(view =>
+            .With<VideoWatchedEvent>(view =>
             {
                Persist(view, v =>
                {
                   _store.Add(v);
                   SaveSnapshot(_store);
                });
-               Console.WriteLine($"Persisting view. video: {view.VideoId} user: {view.UserId}");
+               Console.WriteLine($"Persisting {nameof(VideoWatchedEvent)}. video: {view.VideoId} user: {view.UserId}");
             })
-            .With<PreviouslyViewedVideosRequest>(req =>
+            .With<PreviouslyWatchedVideosRequest>(req =>
             {
-               Console.WriteLine(nameof(PreviouslyViewedVideosRequest) + $" for user {req.Job.UserId}");
+               Console.WriteLine(nameof(PreviouslyWatchedVideosRequest) + $" for user {req.Job.UserId}");
 
                var result = _store
                   .Where(e => e.UserId == req.Job.UserId)
@@ -87,7 +87,7 @@ namespace StatefulWorkers
                   .Distinct()
                   .ToArray();
 
-               Sender.Tell(new PreviouslyViewedVideosResponse(req.Job, result));
+               Sender.Tell(new PreviouslyWatchedVideosResponse(req.Job, result));
             })
             .WasHandled;
       }
