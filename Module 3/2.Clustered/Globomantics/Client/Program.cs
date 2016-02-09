@@ -17,13 +17,13 @@ namespace Client
 
          var rand = new Random();
 
-         system.Scheduler.Advanced.ScheduleRepeatedly(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(1), () =>
+         system.Scheduler.Advanced.ScheduleRepeatedly(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2), () =>
             {
                if(api.Ask<Routees>(new GetRoutees()).Result.Members.Any())
                   api.Tell(new VideoWatchedEvent(rand.Next(16), rand.Next(11)));
             });
          
-         system.Scheduler.Advanced.ScheduleRepeatedly(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5), () =>
+         system.Scheduler.Advanced.ScheduleRepeatedly(TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(4), () =>
             {
                if (api.Ask<Routees>(new GetRoutees()).Result.Members.Any())
                   api.Tell(new LoginEvent(rand.Next(11)), printer);

@@ -26,13 +26,13 @@ namespace API
       }
    }
 
-   public class VideoViewEvent
+   public class VideoWatchedEvent
    {
       public int VideoId { get; }
 
       public int UserId { get; }
 
-      public VideoViewEvent(int videoId, int userId)
+      public VideoWatchedEvent(int videoId, int userId)
       {
          VideoId = videoId;
          UserId = userId;

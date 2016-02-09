@@ -28,7 +28,7 @@ namespace API
          });
 
          //Best effort
-         Receive<VideoViewEvent>(view => _viewsRepo.Tell(new Broadcast(view)));
+         Receive<VideoWatchedEvent>(view => _viewsRepo.Tell(new Broadcast(view)));
       }
    }
 }

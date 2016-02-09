@@ -43,7 +43,7 @@ namespace API.StatefulWorkers
    /// </summary>
    internal class VideosWatchedStore : PersistentActor//Part of Akka.Persistence
    {
-      private List<VideoViewEvent> _store = new List<VideoViewEvent>();
+      private List<VideoWatchedEvent> _store = new List<VideoWatchedEvent>();
 
       public override string PersistenceId { get; } = "ViewsStore";
 
@@ -55,10 +55,10 @@ namespace API.StatefulWorkers
       protected override bool ReceiveRecover(object message)
       {
          return message.Match()
-            .With<VideoViewEvent>(view => _store.Add(view))
+            .With<VideoWatchedEvent>(view => _store.Add(view))
             .With<SnapshotOffer>(offer =>
             {
-               _store = (List<VideoViewEvent>)offer.Snapshot;
+               _store = (List<VideoWatchedEvent>)offer.Snapshot;
                Console.WriteLine($"Recovered state with {_store.Count} views");
             })
             .WasHandled;
@@ -67,14 +67,14 @@ namespace API.StatefulWorkers
       protected override bool ReceiveCommand(object message)
       {
          return message.Match()
-            .With<VideoViewEvent>(view =>
+            .With<VideoWatchedEvent>(view =>
             {
                Persist(view, v =>
                {
                   _store.Add(v);
                   SaveSnapshot(_store);
                });
-               Console.WriteLine($"Persisting {nameof(VideoViewEvent)}. video: {view.VideoId} user: {view.UserId}");
+               Console.WriteLine($"Persisting {nameof(VideoWatchedEvent)}. video: {view.VideoId} user: {view.UserId}");
             })
             .With<PreviouslyWatchedVideosRequest>(req =>
             {

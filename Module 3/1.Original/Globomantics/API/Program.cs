@@ -24,7 +24,7 @@ namespace API
          var printer = system.ActorOf<Printer>();
 
          system.Scheduler.Advanced.ScheduleRepeatedly(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(1),
-            () => api.Tell(new VideoViewEvent(rand.Next(16), rand.Next(11))));
+            () => api.Tell(new VideoWatchedEvent(rand.Next(16), rand.Next(11))));
 
          system.Scheduler.Advanced.ScheduleRepeatedly(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5),
             () => api.Tell(new LoginEvent(rand.Next(11)), printer));
